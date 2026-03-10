@@ -65,6 +65,7 @@
     "plan_wave_execution": {
       "event": "plan_wave_execution",
       "from_phases": [
+        "last_mile_stabilization",
         "structured_discovery",
         "migration_planning"
       ],
@@ -77,6 +78,7 @@
     "plan_wave_manual": {
       "event": "plan_wave_manual",
       "from_phases": [
+        "last_mile_stabilization",
         "structured_discovery",
         "migration_planning"
       ],
@@ -89,6 +91,7 @@
     "plan_wave_deferred": {
       "event": "plan_wave_deferred",
       "from_phases": [
+        "last_mile_stabilization",
         "structured_discovery",
         "migration_planning"
       ],
@@ -101,6 +104,7 @@
     "plan_wave_blocked": {
       "event": "plan_wave_blocked",
       "from_phases": [
+        "last_mile_stabilization",
         "structured_discovery",
         "migration_planning"
       ],

@@ -59,6 +59,8 @@ This skill uses two planning layers:
 
 If the human-readable plan and machine-readable state disagree, update both
 before continuing. Scripts remain authoritative for deterministic transitions.
+Prefer fixing the smallest conflicting fields instead of rewriting whole
+documents.
 
 ## Workflow
 
@@ -70,23 +72,38 @@ mode requires it.
 2. If `docs/java-migration` is missing or only reserved, inspect the repository
    root just enough to classify build system, module shape, and migration
    intent.
-3. Read `docs/java-migration/state/project.state.json` when it exists.
-4. Read `docs/java-migration/state/active-milestone.json` only when it exists
-   and the next action depends on milestone-local fields.
+3. Read `docs/java-migration/state/project.state.json` first when it exists.
+4. Read `docs/java-migration/state/active-milestone.json` only when milestone
+   fields affect the next action.
 5. Validate that `current_phase`, `operating_mode`, `next_skill`,
    `next_scope_ids`, and `build_system` are coherent with
    `scripts/state/statectl.py route` or the compatibility wrapper
    `scripts/state/resolve-state-route.py`.
-6. Read `docs/java-migration/PLAN.md` only when it exists and the next action
-   requires repository-specific rationale, decisions, or progress context.
-7. Read `docs/java-migration/state/session-handoff.md` only when resuming or
-   when active blockers suggest unresolved session context.
+6. Read `docs/java-migration/state/session-handoff.md` only when resuming or
+   when blockers / pending decisions suggest unresolved session context.
+7. Read `docs/java-migration/PLAN.md` only when state + handoff are
+   insufficient to choose the next safe step.
 8. Read only the ADRs, manifests, and scope runs needed for the active phase
    and the next selected scopes.
 9. Use this `SKILL.md` as the canonical phase guidance for the installed skill.
 10. Use the phase-specific scripts instead of making ad hoc state mutations.
 11. Persist the updated repository `PLAN.md`, state, and handoff before ending
-    the session.
+    the session, but keep each artifact as delta-only as possible.
+
+## Artifact budget
+
+Treat repository artifacts as operational indexes, not narratives.
+
+- `project.state.json` is the primary machine-readable source of truth.
+- `active-milestone.json` carries only milestone-local scope selection and
+  completion state.
+- `session-handoff.md` must be a minimal restart note, not a recap.
+- `PLAN.md` must stay compact and readable in one screen when possible.
+- `summary.state` files must stay factual and short.
+- Do not duplicate the same explanation across all artifacts.
+- When only one field changes, update only that field or the smallest relevant
+  paragraph.
+- Prefer terse factual bullets over chronological storytelling.
 
 ## Standard workflow
 
@@ -124,7 +141,7 @@ Use when baseline evidence is missing or incomplete.
 
 Required actions:
 
-- read only the active state, target `PLAN.md`, and relevant manifests
+- read only the active state, target `PLAN.md` when needed, and relevant manifests
 - gather evidence for one scope or a small independent batch
 - normalize discovery output with bundled scripts
 - refresh next-scope state
@@ -145,7 +162,8 @@ Required actions:
 - group scopes into small rollback-friendly waves
 - promote only `openrewrite_ready` scopes into deterministic automation
 - persist the promoted wave through the planner script
-- update the target `PLAN.md` with rationale, risks, and success criteria
+- update the target `PLAN.md` only with the new wave decision, rationale, risks,
+  and success criteria
 
 Exit criteria:
 
@@ -164,7 +182,7 @@ Required actions:
 - run bundled automation helpers
 - validate the affected scopes
 - register results in state
-- summarize outcomes and residual issues in the target `PLAN.md`
+- summarize outcomes and residual issues in the target `PLAN.md` in delta form
 
 Exit criteria:
 
@@ -181,7 +199,7 @@ Required actions:
 - make the smallest coherent fix set
 - rerun the relevant validation
 - register the result in state
-- capture remaining risks or blockers in the target `PLAN.md`
+- capture only the remaining risks or blockers in the target `PLAN.md`
 
 Exit criteria:
 
@@ -262,7 +280,8 @@ Fallbacks are exceptions, not a parallel happy path.
 
 Each target repository must keep `docs/java-migration/PLAN.md` current.
 
-It should stay compact and operational. The recommended structure is:
+It should stay compact and operational. Prefer one short bullet per line. The
+recommended structure is:
 
 1. Objective
    Repository-specific migration goal and supported target stack.
@@ -281,8 +300,9 @@ It should stay compact and operational. The recommended structure is:
 8. Session resume
    The minimal read order and commands needed to continue safely.
 
-Do not turn the repository plan into a long narrative. It must stay easy to
-resume from and cheap to maintain.
+Do not turn the repository plan into a long narrative. Avoid historical
+play-by-play unless the current session still depends on it. It must stay easy
+to resume from and cheap to maintain.
 
 ## Resume rules
 
@@ -290,10 +310,11 @@ When resuming work in a target repository:
 
 1. Run `bash java-migration/scripts/bootstrap/migration-kit.sh resume <repo-root>`.
 2. Read these files in order:
-   - `docs/java-migration/PLAN.md`
    - `docs/java-migration/state/project.state.json`
    - `docs/java-migration/state/active-milestone.json`
    - `docs/java-migration/state/session-handoff.md`
+   - `docs/java-migration/PLAN.md` only if state + handoff do not already
+     determine the next safe action
 3. Load only the ADRs, manifests, and scope runs needed for the listed scopes.
 4. Continue from the persisted `operating_mode`, `current_phase`, and
    `next_scope_ids`.

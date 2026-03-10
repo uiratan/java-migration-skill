@@ -103,10 +103,10 @@ if [[ ! -f "${MIGRATION_DIR}/PLAN.md" ]]; then
 ## Session Resume
 
 1. Run `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`
-2. Read `docs/java-migration/PLAN.md`
-3. Read `docs/java-migration/state/project.state.json`
-4. Read `docs/java-migration/state/active-milestone.json`
-5. Read `docs/java-migration/state/session-handoff.md`
+2. Read `docs/java-migration/state/project.state.json`
+3. Read `docs/java-migration/state/active-milestone.json`
+4. Read `docs/java-migration/state/session-handoff.md`
+5. Read `docs/java-migration/PLAN.md` only if state + handoff do not settle the next action
 6. Load only the ADRs and scope runs needed for the listed next scopes
 EOF
 fi
@@ -198,6 +198,7 @@ if [[ ! -f "${STATE_DIR}/active-milestone.json" ]]; then
   ],
   "selected_scope_ids": [],
   "completed_scope_ids": [],
+  "stabilized_scope_ids": [],
   "pending_scope_ids": [],
   "blocked_scope_ids": [],
   "deferred_scope_ids": [],
@@ -236,7 +237,7 @@ if [[ ! -f "${STATE_DIR}/session-handoff.md" ]]; then
 
 ## Next Session Prompt
 
-Use $java-migration for this repository. Start by running `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`, then read `docs/java-migration/PLAN.md`, `docs/java-migration/state/project.state.json`, `docs/java-migration/state/active-milestone.json`, and `docs/java-migration/state/session-handoff.md` in that order. Respect the persisted context budget policy: warn near 30%, stop and hand off at 40%, and never continue past 50% of the context window. Load only the ADRs and scope runs required for the listed next scopes, then continue from the persisted `operating_mode`, `current_phase`, and `next_scope_ids`.
+Use $java-migration for this repository. Start by running `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`, then read `docs/java-migration/state/project.state.json`, `docs/java-migration/state/active-milestone.json`, and `docs/java-migration/state/session-handoff.md` in that order. Read `docs/java-migration/PLAN.md` only if those files do not already determine the next safe action. Respect the persisted context budget policy: warn near 30%, stop and hand off at 40%, and never continue past 50% of the context window. Load only the ADRs and scope runs required for the listed next scopes, then continue from the persisted `operating_mode`, `current_phase`, and `next_scope_ids`.
 EOF
 fi
 

@@ -48,8 +48,8 @@
 ## Session Resume
 
 1. Run `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`
-2. Read `docs/java-migration/PLAN.md`
-3. Read `docs/java-migration/state/project.state.json`
-4. Read `docs/java-migration/state/active-milestone.json`
-5. Read `docs/java-migration/state/session-handoff.md`
+2. Read `docs/java-migration/state/project.state.json`
+3. Read `docs/java-migration/state/active-milestone.json`
+4. Read `docs/java-migration/state/session-handoff.md`
+5. Read `docs/java-migration/PLAN.md` only if state + handoff do not settle the next action
 6. Load only the ADRs and scope runs needed for the listed next scopes

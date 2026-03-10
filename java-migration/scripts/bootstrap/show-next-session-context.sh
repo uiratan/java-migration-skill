@@ -24,10 +24,10 @@ require_file "${MILESTONE_STATE}"
 require_file "${HANDOFF_FILE}"
 
 echo "Read these files in order:"
-echo "- ${PLAN_FILE}"
 echo "- ${PROJECT_STATE}"
 echo "- ${MILESTONE_STATE}"
 echo "- ${HANDOFF_FILE}"
+echo "- ${PLAN_FILE} (only if needed after state + handoff)"
 echo
 echo "Current project state:"
 python3 - "${PROJECT_STATE}" "${MILESTONE_STATE}" "${ROUTE_SCRIPT}" <<'PY'
@@ -88,10 +88,10 @@ budget = project.get("context_budget", {})
 prompt = (
     "Use $java-migration for this repository. "
     "Start by running `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`, "
-    "then read `docs/java-migration/PLAN.md`, "
-    "`docs/java-migration/state/project.state.json`, "
+    "then read `docs/java-migration/state/project.state.json`, "
     "`docs/java-migration/state/active-milestone.json`, and "
     "`docs/java-migration/state/session-handoff.md` in that order. "
+    "Read `docs/java-migration/PLAN.md` only if those files do not already determine the next safe action. "
     f"Respect the persisted context budget policy: warn near {budget.get('warning_threshold_percent', 'unknown')}%, "
     f"stop and hand off at {budget.get('handoff_threshold_percent', 'unknown')}%, "
     f"and never continue past {budget.get('hard_ceiling_percent', 'unknown')}% of the context window. "

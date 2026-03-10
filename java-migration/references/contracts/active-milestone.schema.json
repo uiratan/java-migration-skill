@@ -83,6 +83,13 @@
       },
       "uniqueItems": true
     },
+    "stabilized_scope_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
     "pending_scope_ids": {
       "type": "array",
       "items": {

@@ -120,6 +120,20 @@ def load_state_pair(project_state_path: pathlib.Path, milestone_state_path: path
     return load_json(project_state_path), load_json(milestone_state_path)
 
 
+def unique_scope_ids(scope_ids: list[str]) -> list[str]:
+    return list(dict.fromkeys(scope_ids))
+
+
+def get_stabilized_scope_ids(milestone_state: dict) -> list[str]:
+    return unique_scope_ids(milestone_state.get("stabilized_scope_ids", []))
+
+
+def add_stabilized_scope_ids(milestone_state: dict, scope_ids: list[str]) -> list[str]:
+    stabilized = get_stabilized_scope_ids(milestone_state)
+    milestone_state["stabilized_scope_ids"] = unique_scope_ids(stabilized + scope_ids)
+    return milestone_state["stabilized_scope_ids"]
+
+
 def persist_state_pair(
     project_state_path: pathlib.Path,
     milestone_state_path: pathlib.Path,
@@ -205,6 +219,12 @@ def cmd_route(args: argparse.Namespace) -> int:
         messages.append(
             "phase marked completed; confirm whether a new milestone should be activated"
         )
+
+    selected_scope_ids = milestone_state.get("selected_scope_ids", [])
+    stabilized_scope_ids = get_stabilized_scope_ids(milestone_state)
+    if set(selected_scope_ids) & set(stabilized_scope_ids):
+        route_status = "inconsistent"
+        messages.append("milestone.selected_scope_ids overlaps stabilized_scope_ids")
 
     payload = {
         "current_phase": current_phase,
@@ -321,10 +341,13 @@ def cmd_plan_wave(args: argparse.Namespace) -> int:
     manual_only: list[str] = []
     blocked: list[str] = []
     deferred: list[str] = []
+    stabilized_scope_ids = set(get_stabilized_scope_ids(milestone_state))
 
     with scopes_csv_path.open(encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
             scope_id = row["scope_id"]
+            if scope_id in stabilized_scope_ids:
+                continue
             summary = read_summary_state(runs_dir / scope_id / "summary.state")
             if not summary:
                 continue
@@ -506,6 +529,12 @@ def cmd_register_last_mile(args: argparse.Namespace) -> int:
     project_state["notes"] = f"{notes}\n{line}".strip()
 
     if args.status == "completed" and args.validation_status == "passed":
+        completed_scope_ids = milestone_state.setdefault("completed_scope_ids", [])
+        milestone_state["completed_scope_ids"] = unique_scope_ids(completed_scope_ids + selected_scope_ids)
+        add_stabilized_scope_ids(milestone_state, selected_scope_ids)
+        milestone_state["selected_scope_ids"] = []
+        milestone_state["next_scope_ids"] = []
+        project_state["next_scope_ids"] = []
         apply_transition(
             project_state,
             milestone_state,
