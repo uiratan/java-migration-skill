@@ -1,0 +1,4 @@
+interface:
+  display_name: "Migration Discovery"
+  short_description: "Run artifact-first discovery by scope"
+  default_prompt: "Use $migration-discovery to refresh the baseline or run discovery for the next listed scopes, write every scope result through migration-discovery/scripts/write-summary-state.py, keep outputs inside summary.state and evidence artifacts only, then update official state with sync-next-scopes.py."

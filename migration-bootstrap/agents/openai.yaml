@@ -1,0 +1,4 @@
+interface:
+  display_name: "Migration Bootstrap"
+  short_description: "Initialize migration governance in a new repo"
+  default_prompt: "Use $migration-bootstrap to inspect this repository, call the kit bootstrap entrypoint, initialize the first-run output contract in docs/java-migration, seed milestone 0, and prepare the initial scope manifest."

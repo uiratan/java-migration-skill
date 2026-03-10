@@ -1,0 +1,4 @@
+interface:
+  display_name: "Migration OpenRewrite"
+  short_description: "Run repeatable migration rewrites"
+  default_prompt: "Use $migration-openrewrite to apply the smallest safe OpenRewrite recipe set for the selected scopes through the kit scripts, register the run, and report the remaining manual work in official state."

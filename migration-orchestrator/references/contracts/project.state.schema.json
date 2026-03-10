@@ -1,0 +1,337 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project Migration State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "state_schema_version",
+    "project_id",
+    "repository_id",
+    "repository_root",
+    "build_system",
+    "build_files",
+    "current_stack",
+    "target_stack",
+    "operating_mode",
+    "current_phase",
+    "phase_status",
+    "transition_reason",
+    "active_adr_ids",
+    "active_milestone_id",
+    "next_skill",
+    "next_scope_ids",
+    "global_blockers",
+    "pending_decisions",
+    "capabilities",
+    "phase_history",
+    "last_updated"
+  ],
+  "properties": {
+    "state_schema_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build_system": {
+      "type": "string",
+      "enum": [
+        "maven",
+        "gradle",
+        "mixed",
+        "unknown"
+      ]
+    },
+    "build_files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "current_stack": {
+      "$ref": "#/$defs/stackDescriptor"
+    },
+    "target_stack": {
+      "$ref": "#/$defs/stackDescriptor"
+    },
+    "operating_mode": {
+      "type": "string",
+      "enum": [
+        "assess",
+        "bootstrap",
+        "discover",
+        "plan",
+        "execute",
+        "stabilize",
+        "resume"
+      ]
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": [
+        "bootstrap_governance",
+        "structured_discovery",
+        "migration_planning",
+        "automated_execution",
+        "last_mile_fixes",
+        "stabilization"
+      ]
+    },
+    "phase_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "blocked",
+        "completed"
+      ]
+    },
+    "transition_reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "active_adr_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "active_milestone_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "next_skill": {
+      "type": "string",
+      "enum": [
+        "migration-orchestrator",
+        "migration-bootstrap",
+        "migration-discovery",
+        "migration-openrewrite",
+        "migration-transformer-fallback",
+        "migration-wave-planner",
+        "migration-last-mile-fixer"
+      ]
+    },
+    "next_scope_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "global_blockers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    },
+    "pending_decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bootstrap_supported",
+        "discovery_supported",
+        "wave_planning_supported",
+        "openrewrite_supported",
+        "transformer_supported",
+        "manual_fixes_supported"
+      ],
+      "properties": {
+        "bootstrap_supported": {
+          "type": "boolean"
+        },
+        "discovery_supported": {
+          "type": "boolean"
+        },
+        "wave_planning_supported": {
+          "type": "boolean"
+        },
+        "openrewrite_supported": {
+          "type": "boolean"
+        },
+        "transformer_supported": {
+          "type": "boolean"
+        },
+        "manual_fixes_supported": {
+          "type": "boolean"
+        }
+      }
+    },
+    "phase_history": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/phaseHistoryEntry"
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "$defs": {
+    "stackDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "java_version",
+        "namespace",
+        "platform",
+        "runtime"
+      ],
+      "properties": {
+        "java_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "type": "string",
+          "enum": [
+            "javax",
+            "jakarta",
+            "mixed",
+            "unknown"
+          ]
+        },
+        "platform": {
+          "type": "string",
+          "minLength": 1
+        },
+        "framework": {
+          "type": "string"
+        },
+        "runtime": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blocker_id",
+        "severity",
+        "summary",
+        "next_action"
+      ],
+      "properties": {
+        "blocker_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "scope_id": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_action": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "summary",
+        "owner",
+        "status"
+      ],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "resolved"
+          ]
+        },
+        "due_date": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "phaseHistoryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "phase",
+        "status",
+        "reason",
+        "changed_at"
+      ],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "in_progress",
+            "blocked",
+            "completed"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "changed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Migration Wave Planner"
+  short_description: "Turn discovery into executable migration waves"
+  default_prompt: "Use $migration-wave-planner to sequence the current scopes into small migration waves from persisted discovery artifacts, persist the wave with migration-wave-planner/scripts/plan-next-wave.py, and update next_scope_ids and handoff in official state."

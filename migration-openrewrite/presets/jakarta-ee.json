@@ -1,0 +1,11 @@
+{
+  "preset_id": "jakarta-ee",
+  "description": "Initial javax-to-jakarta migration preset for Maven modules",
+  "recipes": [
+    "org.openrewrite.java.migrate.jakarta.JavaxMigrationToJakarta"
+  ],
+  "supported_build_tools": [
+    "maven"
+  ],
+  "phase_hint": "automated_execution"
+}

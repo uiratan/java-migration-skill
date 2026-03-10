@@ -1,0 +1,9 @@
+{
+  "preset_id": "build-modernization",
+  "description": "Placeholder preset for future Maven and plugin modernization batches",
+  "recipes": [],
+  "supported_build_tools": [
+    "maven"
+  ],
+  "phase_hint": "migration_planning"
+}
