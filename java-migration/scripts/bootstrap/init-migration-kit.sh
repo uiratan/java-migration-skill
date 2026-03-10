@@ -116,7 +116,7 @@ mkdir -p "${STATE_DIR}" "${ADR_DIR}" "${MILESTONES_DIR}" "${DISCOVERY_DIR}/manif
 if [[ ! -f "${STATE_DIR}/project.state.json" ]]; then
   cat > "${STATE_DIR}/project.state.json" <<EOF
 {
-  "state_schema_version": "2.1",
+  "state_schema_version": "2.2",
   "project_id": "$(basename "$(cd "${ROOT_DIR}" && pwd)")",
   "repository_id": "$(basename "$(cd "${ROOT_DIR}" && pwd)")",
   "repository_root": "$(cd "${ROOT_DIR}" && pwd)",
@@ -155,6 +155,7 @@ if [[ ! -f "${STATE_DIR}/project.state.json" ]]; then
   "next_scope_ids": [],
   "global_blockers": [],
   "pending_decisions": [],
+  "exception_state": null,
   "capabilities": {
     "bootstrap_supported": true,
     "discovery_supported": true,

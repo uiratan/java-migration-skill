@@ -1,0 +1,227 @@
+{
+  "phase_defaults": {
+    "bootstrap_governance": {
+      "next_skill": "java-migration",
+      "operating_mode": "bootstrap"
+    },
+    "structured_discovery": {
+      "next_skill": "java-migration",
+      "operating_mode": "discover"
+    },
+    "migration_planning": {
+      "next_skill": "java-migration",
+      "operating_mode": "plan"
+    },
+    "automated_execution": {
+      "next_skill": "java-migration",
+      "operating_mode": "execute"
+    },
+    "last_mile_stabilization": {
+      "next_skill": "java-migration",
+      "operating_mode": "stabilize"
+    },
+    "controlled_fallback": {
+      "next_skill": "java-migration",
+      "operating_mode": "fallback"
+    }
+  },
+  "transitions": {
+    "discovery_sync_progress": {
+      "event": "discovery_sync_progress",
+      "from_phases": [
+        "bootstrap_governance",
+        "structured_discovery"
+      ],
+      "to_phase": "structured_discovery",
+      "operating_mode": "discover",
+      "phase_status": "in_progress",
+      "milestone_type": "discovery",
+      "clear_exception": true
+    },
+    "discovery_sync_completed": {
+      "event": "discovery_sync_completed",
+      "from_phases": [
+        "bootstrap_governance",
+        "structured_discovery"
+      ],
+      "to_phase": "structured_discovery",
+      "operating_mode": "discover",
+      "phase_status": "completed",
+      "milestone_type": "discovery",
+      "clear_exception": true
+    },
+    "discovery_sync_blocked": {
+      "event": "discovery_sync_blocked",
+      "from_phases": [
+        "bootstrap_governance",
+        "structured_discovery"
+      ],
+      "to_phase": "structured_discovery",
+      "operating_mode": "discover",
+      "phase_status": "blocked",
+      "milestone_type": "discovery",
+      "clear_exception": true
+    },
+    "plan_wave_execution": {
+      "event": "plan_wave_execution",
+      "from_phases": [
+        "structured_discovery",
+        "migration_planning"
+      ],
+      "to_phase": "automated_execution",
+      "operating_mode": "execute",
+      "phase_status": "in_progress",
+      "milestone_type": "execution",
+      "clear_exception": true
+    },
+    "plan_wave_manual": {
+      "event": "plan_wave_manual",
+      "from_phases": [
+        "structured_discovery",
+        "migration_planning"
+      ],
+      "to_phase": "last_mile_stabilization",
+      "operating_mode": "stabilize",
+      "phase_status": "in_progress",
+      "milestone_type": "stabilization",
+      "clear_exception": true
+    },
+    "plan_wave_deferred": {
+      "event": "plan_wave_deferred",
+      "from_phases": [
+        "structured_discovery",
+        "migration_planning"
+      ],
+      "to_phase": "migration_planning",
+      "operating_mode": "plan",
+      "phase_status": "in_progress",
+      "milestone_type": "planning",
+      "clear_exception": true
+    },
+    "plan_wave_blocked": {
+      "event": "plan_wave_blocked",
+      "from_phases": [
+        "structured_discovery",
+        "migration_planning"
+      ],
+      "to_phase": "migration_planning",
+      "operating_mode": "plan",
+      "phase_status": "blocked",
+      "milestone_type": "planning",
+      "clear_exception": true
+    },
+    "openrewrite_passed": {
+      "event": "openrewrite_passed",
+      "from_phases": [
+        "automated_execution"
+      ],
+      "to_phase": "last_mile_stabilization",
+      "operating_mode": "stabilize",
+      "phase_status": "in_progress",
+      "milestone_type": "stabilization",
+      "clear_exception": true
+    },
+    "openrewrite_validation_failed": {
+      "event": "openrewrite_validation_failed",
+      "from_phases": [
+        "automated_execution"
+      ],
+      "to_phase": "last_mile_stabilization",
+      "operating_mode": "stabilize",
+      "phase_status": "blocked",
+      "milestone_type": "stabilization",
+      "clear_exception": true
+    },
+    "openrewrite_dry_run": {
+      "event": "openrewrite_dry_run",
+      "from_phases": [
+        "automated_execution"
+      ],
+      "to_phase": "automated_execution",
+      "operating_mode": "execute",
+      "phase_status": "in_progress",
+      "milestone_type": "execution",
+      "clear_exception": true
+    },
+    "openrewrite_fallback": {
+      "event": "openrewrite_fallback",
+      "from_phases": [
+        "automated_execution"
+      ],
+      "to_phase": "controlled_fallback",
+      "operating_mode": "fallback",
+      "phase_status": "blocked",
+      "milestone_type": "fallback",
+      "clear_exception": false
+    },
+    "fallback_in_progress": {
+      "event": "fallback_in_progress",
+      "from_phases": [
+        "controlled_fallback"
+      ],
+      "to_phase": "controlled_fallback",
+      "operating_mode": "fallback",
+      "phase_status": "in_progress",
+      "milestone_type": "fallback",
+      "clear_exception": false
+    },
+    "fallback_blocked": {
+      "event": "fallback_blocked",
+      "from_phases": [
+        "controlled_fallback"
+      ],
+      "to_phase": "controlled_fallback",
+      "operating_mode": "fallback",
+      "phase_status": "blocked",
+      "milestone_type": "fallback",
+      "clear_exception": false
+    },
+    "fallback_completed": {
+      "event": "fallback_completed",
+      "from_phases": [
+        "controlled_fallback"
+      ],
+      "to_phase": "controlled_fallback",
+      "operating_mode": "fallback",
+      "phase_status": "completed",
+      "milestone_type": "fallback",
+      "clear_exception": false
+    },
+    "last_mile_in_progress": {
+      "event": "last_mile_in_progress",
+      "from_phases": [
+        "last_mile_stabilization",
+        "controlled_fallback"
+      ],
+      "to_phase": "last_mile_stabilization",
+      "operating_mode": "stabilize",
+      "phase_status": "in_progress",
+      "milestone_type": "stabilization",
+      "clear_exception": true
+    },
+    "last_mile_blocked": {
+      "event": "last_mile_blocked",
+      "from_phases": [
+        "last_mile_stabilization",
+        "controlled_fallback"
+      ],
+      "to_phase": "last_mile_stabilization",
+      "operating_mode": "stabilize",
+      "phase_status": "blocked",
+      "milestone_type": "stabilization",
+      "clear_exception": true
+    },
+    "last_mile_completed": {
+      "event": "last_mile_completed",
+      "from_phases": [
+        "last_mile_stabilization",
+        "controlled_fallback"
+      ],
+      "to_phase": "last_mile_stabilization",
+      "operating_mode": "stabilize",
+      "phase_status": "completed",
+      "milestone_type": "stabilization",
+      "clear_exception": true
+    }
+  }
+}

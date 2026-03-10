@@ -37,6 +37,7 @@
 
 - Active blockers:
 - Fallbacks in use:
+- Active exception state:
 - Removal conditions:
 
 ## Next Actions

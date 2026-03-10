@@ -33,8 +33,8 @@ Formato da skill:
 - discovery
 - planning
 - OpenRewrite execution
-- transformer exception handling
 - last-mile stabilization
+- controlled fallback
 
 Estrutura recomendada:
 

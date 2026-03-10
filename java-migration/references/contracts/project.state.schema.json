@@ -30,7 +30,7 @@
   "properties": {
     "state_schema_version": {
       "type": "string",
-      "const": "2.1"
+      "const": "2.2"
     },
     "project_id": {
       "type": "string",
@@ -76,6 +76,7 @@
         "plan",
         "execute",
         "stabilize",
+        "fallback",
         "resume"
       ]
     },
@@ -86,8 +87,8 @@
         "structured_discovery",
         "migration_planning",
         "automated_execution",
-        "last_mile_fixes",
-        "stabilization"
+        "last_mile_stabilization",
+        "controlled_fallback"
       ]
     },
     "phase_status": {
@@ -143,6 +144,16 @@
       "items": {
         "$ref": "#/$defs/decision"
       }
+    },
+    "exception_state": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/exceptionState"
+        }
+      ]
     },
     "capabilities": {
       "type": "object",
@@ -361,6 +372,57 @@
         "changed_at": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "exceptionState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exception_type",
+        "status",
+        "summary",
+        "entry_criteria",
+        "exit_condition",
+        "artifact_scope_ids"
+      ],
+      "properties": {
+        "exception_type": {
+          "type": "string",
+          "enum": [
+            "transformer_exception",
+            "dependency_blocker",
+            "unsupported_build",
+            "human_decision_required"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "mitigated",
+            "resolved"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entry_criteria": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exit_condition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_scope_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
         }
       }
     }

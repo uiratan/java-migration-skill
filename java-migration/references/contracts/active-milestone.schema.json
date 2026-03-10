@@ -36,7 +36,8 @@
         "discovery",
         "planning",
         "execution",
-        "stabilization"
+        "stabilization",
+        "fallback"
       ]
     },
     "goal": {

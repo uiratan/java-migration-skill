@@ -62,7 +62,7 @@ before continuing. Scripts remain authoritative for deterministic transitions.
 
 ## Workflow
 
-1. Run `bash scripts/bootstrap/migration-kit.sh status <repo-root>`.
+1. Run `bash java-migration/scripts/bootstrap/migration-kit.sh status <repo-root>`.
 2. If `docs/java-migration` is missing or only reserved, inspect the repository
    enough to classify build system, module shape, and migration intent.
 3. Read `docs/java-migration/PLAN.md` when it exists.
@@ -160,9 +160,9 @@ Required actions:
 Exit criteria:
 
 - the wave result is persisted
-- the next action is either another automation wave or stabilization
+- the next action is either another automation wave or last-mile stabilization
 
-### 6. Stabilize
+### 6. Last-mile stabilization
 
 Use only after deterministic automation has run.
 
@@ -183,10 +183,14 @@ Exit criteria:
 
 Use only when the normal upgrade path is explicitly blocked.
 
+This is an official workflow phase. Treat transformer exception handling as one
+kind of controlled fallback, not as a separate competing phase.
+
 Required actions:
 
 - record why the normal path is not viable
 - apply the fallback only to the minimal necessary artifact set
+- persist the fallback through the state controller with explicit exception state
 - persist an exit condition
 - reflect the exception in the target `PLAN.md` and machine-readable state
 
@@ -218,12 +222,12 @@ Fallbacks are exceptions, not a parallel happy path.
 - selected scopes are ready for automation
 - unresolved blocking decisions do not prohibit execution
 
-### Before stabilization
+### Before last-mile stabilization
 
 - deterministic automation has already run
 - residual validation failure or manual follow-up is persisted
 
-### Before transformer exception handling
+### Before controlled fallback
 
 - normal upgrade path is explicitly ruled out
 - the blocking artifact is identified
@@ -234,6 +238,9 @@ Fallbacks are exceptions, not a parallel happy path.
 - Prefer answering in product language first, then describe the active phase.
 - Keep consultative answers in `assess` mode unless the user explicitly asked to
   start or resume the operational flow.
+- `operating_mode` expresses the session intent; `current_phase` expresses the
+  persisted workflow position.
+- `resume` is an operating mode only. It must never be used as a phase.
 - `next_skill` must remain `java-migration`; phase changes are expressed through
   `current_phase`, `operating_mode`, and `transition_reason`.
 - Never move to a new phase without persisting `transition_reason`.
@@ -335,6 +342,7 @@ The skill should not simplify by:
   validation entrypoint, plus compatibility wrappers.
 - `scripts/discovery/` contains deterministic discovery normalizers.
 - `scripts/openrewrite/` contains automated rewrite execution helpers.
+- `scripts/fallback/` contains controlled fallback registration helpers.
 - `scripts/wave-planner/` and `scripts/last-mile/` keep compatibility entrypoints
   that delegate into `scripts/state/statectl.py`.
 - `references/` contains contracts, notes, the target plan template, and
