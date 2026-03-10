@@ -1,20 +1,25 @@
 # Bootstrap Playbook
 
-Use this playbook when `docs/java-migration` is missing or only reserved.
+Compatibility note: bootstrap guidance now lives primarily in
+`java-migration/SKILL.md`.
 
-Workflow:
+Use this file only as a short pointer when an older prompt or workflow refers to
+"the bootstrap playbook".
 
-1. Inspect the repository root, build files, module layout, CI files, and
-   README.
-2. Run `scripts/bootstrap/migration-kit.sh start <repo-root>` when the official
-   migration output is missing.
-3. Ensure the first run leaves the expected output contract in `docs/java-migration`.
-4. Populate the official state and initial scope manifest.
-5. Hand off to structured discovery.
+Primary source of truth:
 
-Rules:
+- `java-migration/SKILL.md`
 
-- Do not start bulk migration during bootstrap.
-- Prefer the bundled bootstrap scripts over recreating files by hand.
-- Leave the persisted state resumable without prior chat context.
-- Seed the official context budget policy in persisted state and handoff output.
+Bootstrap entrypoint:
+
+- `bash java-migration/scripts/bootstrap/migration-kit.sh start <repo-root>`
+
+Minimum expected outcome:
+
+- `docs/java-migration/PLAN.md`
+- `docs/java-migration/state/project.state.json`
+- `docs/java-migration/state/active-milestone.json`
+- `docs/java-migration/state/session-handoff.md`
+
+Do not duplicate bootstrap rules here. Update `SKILL.md` when the skill-level
+workflow changes.

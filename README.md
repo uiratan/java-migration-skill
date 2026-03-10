@@ -22,6 +22,8 @@ Formato da skill:
 - todo fluxo operacional deve depender de estado em disco, não de conversa anterior
 - o kit deve operar com budget de contexto: handoff aos 40% e teto duro aos 50%
 - tudo que for repetível e determinístico deve morar em `scripts/`, `references/` ou contratos
+- a orquestração textual reutilizável da skill deve morar principalmente em `java-migration/SKILL.md`
+- cada repositório migrado deve manter seu plano vivo em `docs/java-migration/PLAN.md`
 
 ## Fluxo da skill
 
@@ -34,8 +36,19 @@ Formato da skill:
 - transformer exception handling
 - last-mile stabilization
 
+Estrutura recomendada:
+
+- skill instalada
+  `SKILL.md` como entrada e contrato operacional reutilizável
+  `scripts/` e contratos como fonte de comportamento determinístico
+- projeto migrado
+  `docs/java-migration/PLAN.md` como plano vivo da migração
+  `docs/java-migration/state/*.json` como estado estruturado
+  `docs/java-migration/discovery-protocol/` como evidência e manifests
+
 Os artefatos oficiais continuam em:
 
+- `docs/java-migration/PLAN.md`
 - `docs/java-migration/state/project.state.json`
 - `docs/java-migration/state/active-milestone.json`
 - `docs/java-migration/state/session-handoff.md`

@@ -1,18 +1,17 @@
 # Transformer Fallback Playbook
 
-Use this playbook only for controlled exceptions.
+Compatibility note: fallback guidance now lives primarily in
+`java-migration/SKILL.md`.
 
-Workflow:
+Use this file only as a short pointer when an older prompt or workflow refers to
+"the transformer fallback playbook".
 
-1. Confirm that normal upgrade or source rewrite is not viable.
-2. Record the blocking artifact and why it blocks the target stack.
-3. Apply Eclipse Transformer only to the minimal necessary artifact set.
-4. Register the fallback in project state, milestone state, and the relevant
-   scope run notes.
-5. Define the future removal condition.
+Primary source of truth:
 
-Rules:
+- `java-migration/SKILL.md`
 
-- This is not a default path.
-- Every use must be traceable.
-- Every use must include an exit condition.
+Fallback rule:
+
+- use only for controlled exceptions
+- always record the blocker, the minimal affected artifact set, and the removal
+  condition in `docs/java-migration/PLAN.md` and machine-readable state

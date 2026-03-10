@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="${1:-.}"
+PLAN_FILE="${ROOT_DIR%/}/docs/java-migration/PLAN.md"
 STATE_DIR="${ROOT_DIR%/}/docs/java-migration/state"
 PROJECT_STATE="${STATE_DIR}/project.state.json"
 MILESTONE_STATE="${STATE_DIR}/active-milestone.json"
@@ -17,11 +18,13 @@ require_file() {
   fi
 }
 
+require_file "${PLAN_FILE}"
 require_file "${PROJECT_STATE}"
 require_file "${MILESTONE_STATE}"
 require_file "${HANDOFF_FILE}"
 
 echo "Read these files in order:"
+echo "- ${PLAN_FILE}"
 echo "- ${PROJECT_STATE}"
 echo "- ${MILESTONE_STATE}"
 echo "- ${HANDOFF_FILE}"
@@ -85,13 +88,14 @@ budget = project.get("context_budget", {})
 prompt = (
     "Use $java-migration for this repository. "
     "Start by running `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`, "
-    "then read only `docs/java-migration/state/project.state.json`, "
+    "then read `docs/java-migration/PLAN.md`, "
+    "`docs/java-migration/state/project.state.json`, "
     "`docs/java-migration/state/active-milestone.json`, and "
     "`docs/java-migration/state/session-handoff.md` in that order. "
     f"Respect the persisted context budget policy: warn near {budget.get('warning_threshold_percent', 'unknown')}%, "
     f"stop and hand off at {budget.get('handoff_threshold_percent', 'unknown')}%, "
     f"and never continue past {budget.get('hard_ceiling_percent', 'unknown')}% of the context window. "
-    "Load only the ADRs, scope runs, and one phase playbook required for the listed next scopes, "
+    "Load only the ADRs and scope runs required for the listed next scopes, "
     "then continue from the persisted `operating_mode`, `current_phase`, and `next_scope_ids`."
 )
 print(prompt)

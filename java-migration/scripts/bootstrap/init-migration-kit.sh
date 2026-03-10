@@ -52,6 +52,65 @@ Output materializado pelo kit de migracao orientado a IA para o projeto atual.
 EOF
 fi
 
+if [[ ! -f "${MIGRATION_DIR}/PLAN.md" ]]; then
+  cat > "${MIGRATION_DIR}/PLAN.md" <<'EOF'
+# Java Migration Plan
+
+## Objective
+
+- Repository:
+- Migration goal:
+- Current stack:
+- Target stack:
+
+## Current Status
+
+- Date:
+- Operating mode: bootstrap
+- Current phase: bootstrap_governance
+- Active milestone: milestone-0-discovery
+- Active wave: wave-0
+- Summary: Bootstrap initialized and waiting for repository inspection.
+
+## Decisions
+
+- YYYY-MM-DD: confirm target runtime, framework, and namespace strategy.
+
+## Scope And Waves
+
+- Current wave: wave-0
+- Selected scopes: none
+- Blocked scopes: none
+- Deferred scopes: none
+
+## Validation
+
+- Required checks: confirm build system, module layout, and initial migration envelope.
+- Latest results: pending.
+- Known failing modules: unknown.
+
+## Risks And Blockers
+
+- Active blockers: none.
+- Fallbacks in use: none.
+- Removal conditions: n/a.
+
+## Next Actions
+
+- Next step: inspect repository root and confirm supported migration envelope.
+- Then: create ADR seed and initial scopes for discovery.
+
+## Session Resume
+
+1. Run `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`
+2. Read `docs/java-migration/PLAN.md`
+3. Read `docs/java-migration/state/project.state.json`
+4. Read `docs/java-migration/state/active-milestone.json`
+5. Read `docs/java-migration/state/session-handoff.md`
+6. Load only the ADRs and scope runs needed for the listed next scopes
+EOF
+fi
+
 mkdir -p "${STATE_DIR}" "${ADR_DIR}" "${MILESTONES_DIR}" "${DISCOVERY_DIR}/manifests" "${DISCOVERY_DIR}/runs" "${MIGRATION_DIR}/openrewrite-runs"
 
 if [[ ! -f "${STATE_DIR}/project.state.json" ]]; then
@@ -176,7 +235,7 @@ if [[ ! -f "${STATE_DIR}/session-handoff.md" ]]; then
 
 ## Next Session Prompt
 
-Use $java-migration for this repository. Start by running `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`, then read only `docs/java-migration/state/project.state.json`, `docs/java-migration/state/active-milestone.json`, and `docs/java-migration/state/session-handoff.md` in that order. Respect the persisted context budget policy: warn near 30%, stop and hand off at 40%, and never continue past 50% of the context window. Load only the ADRs, scope runs, and one phase playbook required for the listed next scopes, then continue from the persisted `operating_mode`, `current_phase`, and `next_scope_ids`.
+Use $java-migration for this repository. Start by running `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`, then read `docs/java-migration/PLAN.md`, `docs/java-migration/state/project.state.json`, `docs/java-migration/state/active-milestone.json`, and `docs/java-migration/state/session-handoff.md` in that order. Respect the persisted context budget policy: warn near 30%, stop and hand off at 40%, and never continue past 50% of the context window. Load only the ADRs and scope runs required for the listed next scopes, then continue from the persisted `operating_mode`, `current_phase`, and `next_scope_ids`.
 EOF
 fi
 

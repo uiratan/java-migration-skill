@@ -1,23 +1,17 @@
 # Wave Planning Playbook
 
-Use this playbook after discovery artifacts are mature enough to support
-sequencing.
+Compatibility note: wave-planning guidance now lives primarily in
+`java-migration/SKILL.md`.
 
-Workflow:
+Use this file only as a short pointer when an older prompt or workflow refers to
+"the wave-planning playbook".
 
-1. Read project state, active milestone, `scopes.csv`, and only the relevant
-   scope runs.
-2. Identify dependency-first constraints.
-3. Group scopes into small executable waves.
-4. Promote only `openrewrite_ready` scopes into automated execution.
-5. Persist the decision with `scripts/wave-planner/plan-next-wave.py`.
+Primary source of truth:
 
-Policy:
+- `java-migration/SKILL.md`
 
-- Prefer waves of up to 3 scopes.
-- Prefer rollback-friendly groups.
-- Preserve blocked scopes explicitly in milestone state.
-- Stop planning at the current coherent wave boundary when the session is near
-  the context budget threshold; persist the promoted wave and hand off.
-- Agents may analyze separate candidate scopes in parallel, but final wave
-  promotion and persisted state updates must be done by one coordinating agent.
+Core planner:
+
+- `scripts/wave-planner/plan-next-wave.py`
+
+Keep wave rationale and next actions in `docs/java-migration/PLAN.md`.
