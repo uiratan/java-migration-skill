@@ -1,7 +1,0 @@
-{
-  "preset_id": "build-modernization",
-  "recipes": [
-    "org.openrewrite.maven.UpgradePluginVersion",
-    "org.openrewrite.maven.UpgradeDependencyVersion"
-  ]
-}

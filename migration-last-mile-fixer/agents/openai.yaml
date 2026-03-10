@@ -1,4 +1,0 @@
-interface:
-  display_name: "Migration Last-Mile Fixer"
-  short_description: "Fix residual issues after migration automation"
-  default_prompt: "Use $migration-last-mile-fixer to address the remaining migration errors after automation, re-run the relevant validation, and register the slice outcome through migration-last-mile-fixer/scripts/register-last-mile-result.py before ending."

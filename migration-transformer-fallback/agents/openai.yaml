@@ -1,4 +1,0 @@
-interface:
-  display_name: "Migration Transformer Fallback"
-  short_description: "Use Eclipse Transformer only for controlled exceptions"
-  default_prompt: "Use $migration-transformer-fallback to evaluate whether this blocked third-party dependency truly needs Eclipse Transformer and, only if it does, register the exception, impact, and future removal condition in official state."
