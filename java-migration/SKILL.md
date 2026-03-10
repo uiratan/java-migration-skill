@@ -335,8 +335,8 @@ The skill should not simplify by:
 - `scripts/openrewrite/` contains automated rewrite execution helpers.
 - `scripts/wave-planner/` contains wave promotion logic.
 - `scripts/last-mile/` contains residual-fix registration helpers.
-- `references/` contains contracts, notes, compatibility stubs, and OpenRewrite
-  presets under `references/openrewrite/presets/`.
+- `references/` contains contracts, notes, the target plan template, and
+  OpenRewrite presets under `references/openrewrite/presets/`.
 
 ## Required outputs
 

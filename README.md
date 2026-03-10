@@ -41,6 +41,7 @@ Estrutura recomendada:
 - skill instalada
   `SKILL.md` como entrada e contrato operacional reutilizável
   `scripts/` e contratos como fonte de comportamento determinístico
+  `references/` para templates, contratos e presets reutilizáveis
 - projeto migrado
   `docs/java-migration/PLAN.md` como plano vivo da migração
   `docs/java-migration/state/*.json` como estado estruturado
