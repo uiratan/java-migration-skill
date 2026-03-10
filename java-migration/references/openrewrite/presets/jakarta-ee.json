@@ -7,5 +7,6 @@
   "supported_build_tools": [
     "maven"
   ],
-  "phase_hint": "automated_execution"
+  "phase_hint": "automated_execution",
+  "recipe_artifact_coordinates": "org.openrewrite.recipe:rewrite-migrate-java:RELEASE"
 }

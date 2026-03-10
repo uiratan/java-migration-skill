@@ -23,7 +23,7 @@ def main() -> int:
         print(f"Preset has no recipes: {preset_id}", file=sys.stderr)
         return 1
 
-    print(",".join(recipes))
+    print(json.dumps(payload, ensure_ascii=True))
     return 0
 
 

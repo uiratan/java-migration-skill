@@ -6,6 +6,7 @@ usage() {
 Usage:
   run-openrewrite.sh --root PATH --scope PATH [--scope PATH ...]
                      [--recipe NAME ... | --recipe-set jakarta-ee]
+                     [--recipe-artifact-coordinates GAV]
                      [--validate-goal GOAL]
                      [--no-validate]
                      [--dry-run]
@@ -14,6 +15,7 @@ Usage:
 Examples:
   run-openrewrite.sh --root . --scope module-a --recipe org.openrewrite.java.migrate.jakarta.JavaxMigrationToJakarta
   run-openrewrite.sh --root . --scope module-a --scope module-b --recipe-set jakarta-ee --dry-run
+  run-openrewrite.sh --root . --scope module-a --recipe-set jakarta-ee --recipe-artifact-coordinates org.openrewrite.recipe:rewrite-migrate-java:RELEASE
 EOF
 }
 
@@ -39,6 +41,7 @@ RUN_ID=""
 VALIDATE_AFTER_RUN="true"
 VALIDATE_GOAL="test-compile"
 RECIPE_SET_ID=""
+RECIPE_ARTIFACT_COORDINATES=""
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PRESETS_DIR="${SCRIPT_DIR}/../../references/openrewrite/presets"
 declare -a SCOPES=()
@@ -51,11 +54,17 @@ while [[ $# -gt 0 ]]; do
     --recipe) RECIPES+=("${2:-}"); shift 2 ;;
     --recipe-set)
       RECIPE_SET_ID="${2:-}"
-      PRESET_RECIPES="$(python3 "${SCRIPT_DIR}/resolve-recipe-set.py" "${PRESETS_DIR}" "${RECIPE_SET_ID}")"
+      PRESET_JSON="$(python3 "${SCRIPT_DIR}/resolve-recipe-set.py" "${PRESETS_DIR}" "${RECIPE_SET_ID}")"
+      PRESET_RECIPES="$(python3 -c 'import json,sys; payload=json.loads(sys.stdin.read()); print(",".join(payload.get("recipes", [])))' <<< "${PRESET_JSON}")"
+      PRESET_ARTIFACT_COORDINATES="$(python3 -c 'import json,sys; payload=json.loads(sys.stdin.read()); print(payload.get("recipe_artifact_coordinates", ""))' <<< "${PRESET_JSON}")"
       IFS=',' read -r -a PRESET_RECIPE_ARRAY <<< "${PRESET_RECIPES}"
       RECIPES+=("${PRESET_RECIPE_ARRAY[@]}")
+      if [[ -z "${RECIPE_ARTIFACT_COORDINATES}" && -n "${PRESET_ARTIFACT_COORDINATES}" ]]; then
+        RECIPE_ARTIFACT_COORDINATES="${PRESET_ARTIFACT_COORDINATES}"
+      fi
       shift 2
       ;;
+    --recipe-artifact-coordinates) RECIPE_ARTIFACT_COORDINATES="${2:-}"; shift 2 ;;
     --validate-goal) VALIDATE_GOAL="${2:-}"; shift 2 ;;
     --no-validate) VALIDATE_AFTER_RUN="false"; shift ;;
     --dry-run) DRY_RUN="true"; shift ;;
@@ -110,6 +119,13 @@ PROJECT_CSV="$(IFS=,; echo "${PROJECT_LIST[*]}")"
 
 declare -a CMD=(
   "${MVN_CMD[@]}"
+)
+
+if [[ -n "${RECIPE_ARTIFACT_COORDINATES}" ]]; then
+  CMD+=("-Drewrite.recipeArtifactCoordinates=${RECIPE_ARTIFACT_COORDINATES}")
+fi
+
+CMD+=(
   "-Drewrite.activeRecipes=${RECIPE_CSV}"
   "-Drewrite.exportDatatables=true"
   "-Drewrite.failOnDryRunResults=true"
@@ -127,6 +143,7 @@ printf 'run_id=%s\n' "${RUN_ID}" >> "${LOG_FILE}"
 printf 'scopes=%s\n' "${PROJECT_CSV}" >> "${LOG_FILE}"
 printf 'recipes=%s\n' "${RECIPE_CSV}" >> "${LOG_FILE}"
 printf 'recipe_set_id=%s\n' "${RECIPE_SET_ID:-none}" >> "${LOG_FILE}"
+printf 'recipe_artifact_coordinates=%s\n' "${RECIPE_ARTIFACT_COORDINATES:-none}" >> "${LOG_FILE}"
 printf 'dry_run=%s\n' "${DRY_RUN}" >> "${LOG_FILE}"
 printf 'validate_after_run=%s\n' "${VALIDATE_AFTER_RUN}" >> "${LOG_FILE}"
 printf 'validate_goal=%s\n' "${VALIDATE_GOAL}" >> "${LOG_FILE}"
@@ -165,7 +182,7 @@ if [[ "${DRY_RUN}" != "true" && "${EXIT_CODE}" -eq 0 && "${VALIDATE_AFTER_RUN}" 
   fi
 fi
 
-python3 - "${SUMMARY_FILE}" "${RUN_ID}" "${PROJECT_CSV}" "${RECIPE_CSV}" "${RECIPE_SET_ID:-}" "${DRY_RUN}" "${EXIT_CODE}" "${VALIDATION_STATUS}" "${VALIDATION_EXIT_CODE}" "${VALIDATION_SUMMARY_FILE}" "${LOG_FILE}" "${MAVEN_EXECUTOR}" "${VALIDATE_GOAL}" "${VALIDATE_AFTER_RUN}" <<'PY'
+python3 - "${SUMMARY_FILE}" "${RUN_ID}" "${PROJECT_CSV}" "${RECIPE_CSV}" "${RECIPE_SET_ID:-}" "${RECIPE_ARTIFACT_COORDINATES:-}" "${DRY_RUN}" "${EXIT_CODE}" "${VALIDATION_STATUS}" "${VALIDATION_EXIT_CODE}" "${VALIDATION_SUMMARY_FILE}" "${LOG_FILE}" "${MAVEN_EXECUTOR}" "${VALIDATE_GOAL}" "${VALIDATE_AFTER_RUN}" <<'PY'
 import json
 import pathlib
 import sys
@@ -176,6 +193,7 @@ import sys
     scopes,
     recipes,
     recipe_set_id,
+    recipe_artifact_coordinates,
     dry_run,
     exit_code,
     validation_status,
@@ -215,6 +233,7 @@ payload = {
     "scopes": [item for item in scopes.split(",") if item],
     "recipes": [item for item in recipes.split(",") if item],
     "recipe_set_id": recipe_set_id or None,
+    "recipe_artifact_coordinates": recipe_artifact_coordinates or None,
     "dry_run": dry_run == "true",
     "rewrite_exit_code": exit_code_int,
     "validation_status": validation_status,
