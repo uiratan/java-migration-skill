@@ -20,7 +20,7 @@ Rules:
 
 - Keep scope outputs limited to `summary.state` and `evidence/`.
 - Do not create per-scope Markdown summaries.
-- Persist judgment in `NOTES` when needed.
+- Record judgment in `NOTES` when needed.
 - Independent scopes may be investigated by multiple agents in parallel, but a
   single coordinating agent must normalize outputs and run
   `scripts/state/sync-next-scopes.py`.

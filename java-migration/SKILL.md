@@ -7,9 +7,9 @@ description: Self-contained Codex skill for agentic Java migration. Use when ass
 
 Use this as the single entry skill for the migration kit.
 
-The skill is self-contained inside this directory. Prefer its bundled
-`scripts/`, `references/`, and contracts. Do not depend on sibling skill trees
- or repository-level wrappers.
+This skill is self-contained in this directory. Prefer its bundled `scripts/`,
+`references/`, and contracts. Do not depend on sibling skill trees or
+repository-level wrappers.
 
 ## Product boundary
 
@@ -44,7 +44,7 @@ Interpret the request into one of these modes:
 - `resume`
   resume from official persisted state
 
-Persisted state and preconditions are authoritative.
+Persisted state and phase preconditions are authoritative.
 
 ## Workflow
 
@@ -58,15 +58,15 @@ Persisted state and preconditions are authoritative.
    `next_scope_ids`, and `build_system` are coherent with
    `scripts/state/resolve-state-route.py`.
 7. Read only the ADRs and scope runs needed for the next scopes.
-8. Load only the playbook needed for the current phase:
+8. Load only the playbook for the active phase:
    - bootstrap: `references/bootstrap-playbook.md`
    - discovery: `references/discovery-playbook.md`
    - planning: `references/wave-planning-playbook.md`
    - execution: `references/openrewrite-playbook.md`
    - transformer exception: `references/transformer-fallback-playbook.md`
    - stabilization: `references/last-mile-playbook.md`
-9. Use phase-specific scripts instead of inventing ad hoc state mutations.
-10. Persist updated state and handoff before ending the session.
+9. Use the phase-specific scripts instead of making ad hoc state mutations.
+10. Persist the updated state and handoff before ending the session.
 
 ## Phase preconditions
 
@@ -120,8 +120,8 @@ Persisted state and preconditions are authoritative.
 
 - This skill may use multiple Codex sub-agents even though it is a single
   installable skill.
-- Parallelize only across independent scopes, independent evidence gathering, or
-  independent validation tasks.
+- Parallelize only across independent scopes, evidence gathering, or validation
+  tasks.
 - Keep one coordinating agent responsible for the official state files and final
   handoff.
 - Do not let multiple agents edit the same state file or the same unresolved
@@ -131,7 +131,7 @@ Persisted state and preconditions are authoritative.
   and any state transition that changes `current_phase`, `phase_status`, or
   `transition_reason`.
 - For automated execution waves, parallelize analysis or validation around the
-  wave, not conflicting code edits inside the same module set.
+  wave, not conflicting edits inside the same module set.
 
 ## Bundled resources
 

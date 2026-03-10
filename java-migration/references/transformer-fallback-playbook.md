@@ -7,7 +7,8 @@ Workflow:
 1. Confirm that normal upgrade or source rewrite is not viable.
 2. Record the blocking artifact and why it blocks the target stack.
 3. Apply Eclipse Transformer only to the minimal necessary artifact set.
-4. Register the fallback in project state, milestone state, and the relevant scope run notes.
+4. Register the fallback in project state, milestone state, and the relevant
+   scope run notes.
 5. Define the future removal condition.
 
 Rules:

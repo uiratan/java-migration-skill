@@ -1,10 +1,12 @@
 # Wave Planning Playbook
 
-Use this playbook after discovery artifacts are mature enough to support sequencing.
+Use this playbook after discovery artifacts are mature enough to support
+sequencing.
 
 Workflow:
 
-1. Read project state, active milestone, `scopes.csv`, and only the relevant scope runs.
+1. Read project state, active milestone, `scopes.csv`, and only the relevant
+   scope runs.
 2. Identify dependency-first constraints.
 3. Group scopes into small executable waves.
 4. Promote only `openrewrite_ready` scopes into automated execution.

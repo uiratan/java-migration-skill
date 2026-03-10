@@ -10,7 +10,7 @@ Workflow:
 4. Run `scripts/openrewrite/run-openrewrite.sh`.
 5. Validate the affected scopes after a real run.
 6. Register the result with `scripts/openrewrite/register-openrewrite-result.py`.
-7. Hand off unresolved issues to last-mile fixes.
+7. Hand off unresolved issues to stabilization work.
 
 Resources:
 
