@@ -116,6 +116,21 @@ Persisted state and phase preconditions are authoritative.
 - Never mark a phase as `blocked` without a persisted blocker.
 - Never create side documents outside `docs/java-migration`.
 
+## Context budget policy
+
+This skill must operate as if context were a scarce runtime budget.
+
+- Treat `50%` of the model context window as a hard operating ceiling.
+- Treat `40%` as the mandatory stop-and-handoff threshold.
+- Before crossing the `40%` threshold, stop active investigation or execution,
+  persist the latest coherent state, and recommend opening a fresh session.
+- Do not continue loading more files, playbooks, or evidence once the skill
+  judges that it is near the `40%` threshold.
+- The handoff must include the minimum restart context and a ready-to-send
+  prompt for the next session.
+- If exact runtime telemetry is unavailable, apply this conservatively based on
+  observed prompt growth and stop early rather than risk crossing `50%`.
+
 ## Multi-agent policy
 
 - This skill may use multiple Codex sub-agents even though it is a single

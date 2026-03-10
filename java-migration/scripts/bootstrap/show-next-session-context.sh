@@ -52,6 +52,12 @@ print(f"- phase: {project['current_phase']}")
 print(f"- operating_mode: {project.get('operating_mode', 'unknown')}")
 print(f"- phase_status: {project.get('phase_status', 'unknown')}")
 print(f"- next_skill: {project['next_skill']}")
+budget = project.get("context_budget", {})
+print(
+    f"- context_budget: warn={budget.get('warning_threshold_percent', 'unknown')}% "
+    f"handoff={budget.get('handoff_threshold_percent', 'unknown')}% "
+    f"hard={budget.get('hard_ceiling_percent', 'unknown')}%"
+)
 print(f"- expected_skill: {route['expected_skill'] or 'unknown'}")
 print(f"- route_status: {route['route_status']}")
 print(f"- route_mode: {route['route_mode']}")
@@ -66,3 +72,27 @@ for message in route.get("messages", []):
 PY
 echo
 echo "Then load only the ADRs and scope runs needed for the listed next scopes."
+echo
+echo "Recommended next-session prompt:"
+python3 - "${PROJECT_STATE}" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as fh:
+    project = json.load(fh)
+
+budget = project.get("context_budget", {})
+prompt = (
+    "Use $java-migration for this repository. "
+    "Start by running `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`, "
+    "then read only `docs/java-migration/state/project.state.json`, "
+    "`docs/java-migration/state/active-milestone.json`, and "
+    "`docs/java-migration/state/session-handoff.md` in that order. "
+    f"Respect the persisted context budget policy: warn near {budget.get('warning_threshold_percent', 'unknown')}%, "
+    f"stop and hand off at {budget.get('handoff_threshold_percent', 'unknown')}%, "
+    f"and never continue past {budget.get('hard_ceiling_percent', 'unknown')}% of the context window. "
+    "Load only the ADRs, scope runs, and one phase playbook required for the listed next scopes, "
+    "then continue from the persisted `operating_mode`, `current_phase`, and `next_scope_ids`."
+)
+print(prompt)
+PY

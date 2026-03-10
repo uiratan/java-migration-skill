@@ -20,6 +20,7 @@ Formato da skill:
 - o output de cada projeto continua em `docs/java-migration`
 - o kit é `Maven-first` em `v1`, com foco principal em Java EE -> Jakarta EE
 - todo fluxo operacional deve depender de estado em disco, não de conversa anterior
+- o kit deve operar com budget de contexto: handoff aos 40% e teto duro aos 50%
 - tudo que for repetível e determinístico deve morar em `scripts/`, `references/` ou contratos
 
 ## Fluxo da skill

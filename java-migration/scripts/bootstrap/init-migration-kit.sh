@@ -57,7 +57,7 @@ mkdir -p "${STATE_DIR}" "${ADR_DIR}" "${MILESTONES_DIR}" "${DISCOVERY_DIR}/manif
 if [[ ! -f "${STATE_DIR}/project.state.json" ]]; then
   cat > "${STATE_DIR}/project.state.json" <<EOF
 {
-  "state_schema_version": "2.0",
+  "state_schema_version": "2.1",
   "project_id": "$(basename "$(cd "${ROOT_DIR}" && pwd)")",
   "repository_id": "$(basename "$(cd "${ROOT_DIR}" && pwd)")",
   "repository_root": "$(cd "${ROOT_DIR}" && pwd)",
@@ -87,6 +87,12 @@ if [[ ! -f "${STATE_DIR}/project.state.json" ]]; then
   ],
   "active_milestone_id": "milestone-0-discovery",
   "next_skill": "java-migration",
+  "context_budget": {
+    "warning_threshold_percent": 30,
+    "handoff_threshold_percent": 40,
+    "hard_ceiling_percent": 50,
+    "fallback_strategy": "persist_state_and_open_new_session"
+  },
   "next_scope_ids": [],
   "global_blockers": [],
   "pending_decisions": [],
@@ -161,8 +167,16 @@ if [[ ! -f "${STATE_DIR}/session-handoff.md" ]]; then
 - phase_status: pending
 - active_milestone: milestone-0-discovery
 - next_skill: java-migration
+- context_warning_threshold_percent: 30
+- context_handoff_threshold_percent: 40
+- context_hard_ceiling_percent: 50
 - next_action: inspect the repository, create ADR seed, and define initial scopes
+- if_near_context_limit: stop, persist official state, and continue in a new session
 - global_blockers: none
+
+## Next Session Prompt
+
+Use $java-migration for this repository. Start by running `bash java-migration/scripts/bootstrap/migration-kit.sh resume .`, then read only `docs/java-migration/state/project.state.json`, `docs/java-migration/state/active-milestone.json`, and `docs/java-migration/state/session-handoff.md` in that order. Respect the persisted context budget policy: warn near 30%, stop and hand off at 40%, and never continue past 50% of the context window. Load only the ADRs, scope runs, and one phase playbook required for the listed next scopes, then continue from the persisted `operating_mode`, `current_phase`, and `next_scope_ids`.
 EOF
 fi
 

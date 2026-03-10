@@ -21,6 +21,8 @@ Rules:
 - Keep scope outputs limited to `summary.state` and `evidence/`.
 - Do not create per-scope Markdown summaries.
 - Record judgment in `NOTES` when needed.
+- If the session is approaching the context budget threshold, stop after the
+  current coherent scope batch, persist state, and hand off to a fresh session.
 - Independent scopes may be investigated by multiple agents in parallel, but a
   single coordinating agent must normalize outputs and run
   `scripts/state/sync-next-scopes.py`.

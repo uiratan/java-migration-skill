@@ -19,6 +19,7 @@
     "active_adr_ids",
     "active_milestone_id",
     "next_skill",
+    "context_budget",
     "next_scope_ids",
     "global_blockers",
     "pending_decisions",
@@ -29,7 +30,7 @@
   "properties": {
     "state_schema_version": {
       "type": "string",
-      "const": "2.0"
+      "const": "2.1"
     },
     "project_id": {
       "type": "string",
@@ -119,6 +120,9 @@
       "enum": [
         "java-migration"
       ]
+    },
+    "context_budget": {
+      "$ref": "#/$defs/contextBudget"
     },
     "next_scope_ids": {
       "type": "array",
@@ -220,6 +224,39 @@
         "runtime": {
           "type": "string",
           "minLength": 1
+        }
+      }
+    },
+    "contextBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "warning_threshold_percent",
+        "handoff_threshold_percent",
+        "hard_ceiling_percent",
+        "fallback_strategy"
+      ],
+      "properties": {
+        "warning_threshold_percent": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "handoff_threshold_percent": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "hard_ceiling_percent": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "fallback_strategy": {
+          "type": "string",
+          "enum": [
+            "persist_state_and_open_new_session"
+          ]
         }
       }
     },

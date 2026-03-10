@@ -17,5 +17,7 @@ Policy:
 - Prefer waves of up to 3 scopes.
 - Prefer rollback-friendly groups.
 - Preserve blocked scopes explicitly in milestone state.
+- Stop planning at the current coherent wave boundary when the session is near
+  the context budget threshold; persist the promoted wave and hand off.
 - Agents may analyze separate candidate scopes in parallel, but final wave
   promotion and persisted state updates must be done by one coordinating agent.

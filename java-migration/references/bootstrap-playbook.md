@@ -17,3 +17,4 @@ Rules:
 - Do not start bulk migration during bootstrap.
 - Prefer the bundled bootstrap scripts over recreating files by hand.
 - Leave the persisted state resumable without prior chat context.
+- Seed the official context budget policy in persisted state and handoff output.

@@ -14,3 +14,5 @@ Rules:
 
 - Treat this as residual correction, not a substitute for missing automation.
 - If the same issue appears broadly, stop and push it back toward automation.
+- If context budget is running low, stop after the smallest validated fix set,
+  register the result, and hand off.
