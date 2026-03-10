@@ -62,18 +62,27 @@ before continuing. Scripts remain authoritative for deterministic transitions.
 
 ## Workflow
 
+Follow progressive disclosure. Load the smallest amount of context that can
+safely determine the next action, then expand only when the current phase or
+mode requires it.
+
 1. Run `bash java-migration/scripts/bootstrap/migration-kit.sh status <repo-root>`.
 2. If `docs/java-migration` is missing or only reserved, inspect the repository
-   enough to classify build system, module shape, and migration intent.
-3. Read `docs/java-migration/PLAN.md` when it exists.
-4. Read `docs/java-migration/state/project.state.json` when it exists.
-5. Read `docs/java-migration/state/active-milestone.json` when it exists.
-6. Read `docs/java-migration/state/session-handoff.md` when it exists.
-7. Validate that `current_phase`, `operating_mode`, `next_skill`,
+   root just enough to classify build system, module shape, and migration
+   intent.
+3. Read `docs/java-migration/state/project.state.json` when it exists.
+4. Read `docs/java-migration/state/active-milestone.json` only when it exists
+   and the next action depends on milestone-local fields.
+5. Validate that `current_phase`, `operating_mode`, `next_skill`,
    `next_scope_ids`, and `build_system` are coherent with
    `scripts/state/statectl.py route` or the compatibility wrapper
    `scripts/state/resolve-state-route.py`.
-8. Read only the ADRs and scope runs needed for the next scopes.
+6. Read `docs/java-migration/PLAN.md` only when it exists and the next action
+   requires repository-specific rationale, decisions, or progress context.
+7. Read `docs/java-migration/state/session-handoff.md` only when resuming or
+   when active blockers suggest unresolved session context.
+8. Read only the ADRs, manifests, and scope runs needed for the active phase
+   and the next selected scopes.
 9. Use this `SKILL.md` as the canonical phase guidance for the installed skill.
 10. Use the phase-specific scripts instead of making ad hoc state mutations.
 11. Persist the updated repository `PLAN.md`, state, and handoff before ending
