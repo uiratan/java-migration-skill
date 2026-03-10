@@ -302,16 +302,20 @@ When resuming work in a target repository:
 
 This skill must operate as if context were a scarce runtime budget.
 
-- Treat `50%` of the model context window as a hard operating ceiling.
-- Treat `40%` as the mandatory stop-and-handoff threshold.
-- Before crossing the `40%` threshold, stop active investigation or execution,
-  persist the latest coherent state, and recommend opening a fresh session.
+- Treat the point at which `50%` of the model context window has been consumed
+  as a hard operating ceiling.
+- Treat the point at which `40%` of the model context window has been consumed
+  as the mandatory stop-and-handoff threshold.
+- Before crossing the `40% consumed` threshold, stop active investigation or
+  execution, persist the latest coherent state, and recommend opening a fresh
+  session.
 - Do not continue loading more files, compatibility notes, or evidence once the skill
-  judges that it is near the `40%` threshold.
+  judges that it is near `40% consumed` of the context window.
 - The handoff must include the minimum restart context and a ready-to-send
   prompt for the next session.
 - If exact runtime telemetry is unavailable, apply this conservatively based on
-  observed prompt growth and stop early rather than risk crossing `50%`.
+  observed prompt growth and stop early rather than risk crossing the `50%
+  consumed` ceiling.
 
 ## Multi-agent policy
 
