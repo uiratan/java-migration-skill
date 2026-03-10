@@ -71,6 +71,7 @@ before continuing. Scripts remain authoritative for deterministic transitions.
 6. Read `docs/java-migration/state/session-handoff.md` when it exists.
 7. Validate that `current_phase`, `operating_mode`, `next_skill`,
    `next_scope_ids`, and `build_system` are coherent with
+   `scripts/state/statectl.py route` or the compatibility wrapper
    `scripts/state/resolve-state-route.py`.
 8. Read only the ADRs and scope runs needed for the next scopes.
 9. Use this `SKILL.md` as the canonical phase guidance for the installed skill.
@@ -330,11 +331,12 @@ The skill should not simplify by:
 ## Bundled resources
 
 - `scripts/bootstrap/` contains bootstrap and resume entrypoints.
-- `scripts/state/` contains route validation and scope sync helpers.
+- `scripts/state/` contains `statectl.py`, the centralized state transition and
+  validation entrypoint, plus compatibility wrappers.
 - `scripts/discovery/` contains deterministic discovery normalizers.
 - `scripts/openrewrite/` contains automated rewrite execution helpers.
-- `scripts/wave-planner/` contains wave promotion logic.
-- `scripts/last-mile/` contains residual-fix registration helpers.
+- `scripts/wave-planner/` and `scripts/last-mile/` keep compatibility entrypoints
+  that delegate into `scripts/state/statectl.py`.
 - `references/` contains contracts, notes, the target plan template, and
   OpenRewrite presets under `references/openrewrite/presets/`.
 
