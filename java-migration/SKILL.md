@@ -1,6 +1,6 @@
 ---
 name: java-migration
-description: Self-contained Codex skill for agentic Java migration. Use when assessing or executing a Maven-first Java migration, especially Java EE to Jakarta EE, and when you want one installable skill to bootstrap output, run discovery, plan waves, execute OpenRewrite, handle transformer exceptions, and stabilize the repository from persisted state.
+description: Self-contained Agentic skill for Java migration. Use when assessing or executing a Maven-first Java migration, especially Java EE to Jakarta EE, and when you want one installable skill to bootstrap output, run discovery, plan waves, execute OpenRewrite, handle transformer exceptions, and stabilize the repository from persisted state.
 ---
 
 # Java Migration
@@ -105,6 +105,46 @@ Treat repository artifacts as operational indexes, not narratives.
   paragraph.
 - Prefer terse factual bullets over chronological storytelling.
 
+## Operational Guardrails
+
+To ensure safety and functional integrity, the agent MUST adhere to these invariants:
+
+### Business Logic Invariant
+The agent MUST NOT modify, "simplify", or "refactor" any business logic, algorithms, or domain-specific calculations. Changes are STRICTLY limited to structural migration (namespaces, dependency versions, XML schemas). If a business logic change seems "necessary", it must be escalated to the user as a BLOCKER.
+
+### API Adaptation Policy (Rule of Evidence)
+Changes to method signatures or parameter types are permitted ONLY when:
+1. **Required by the target library** (e.g., Hibernate 6 Query API or Jakarta Persistence 3.0 changes).
+2. **Triggered by empirical evidence**: A specific compilation error (e.g., "incompatible types") must be captured before the fix.
+3. **Minimality**: Apply the "Smallest Coherent Fix". Use casts or type conversions at the call site rather than rewriting surrounding logic.
+
+### Documentation Preservation
+The agent MUST preserve and update Javadoc when modifying method signatures. If a parameter type changes, the corresponding `@param` tag must be updated to reflect the new type or description. Javadoc MUST NOT be removed to simplify the migration.
+
+### Test Integrity Policy
+Tests MUST NOT be deleted. If a test fails after a structural migration:
+1. **Fix**: If the failure is due to a simple API change (e.g., a mock returning the wrong type or a change in package name), fix the test code to match the new API. **The fix MUST NOT change the intended logic, assertions, expected values, or the scenarios being tested.** It should only adapt the test setup/harness to the new types and signatures.
+2. **Disable (Last Resort)**: If the fix is complex or requires business logic decisions (such as changing the expected outcome to make the test pass), the agent MUST NOT modify the test logic or delete the test. It should instead:
+    - Annotate with `@Disabled` (JUnit 5) or `@Ignore` (JUnit 4).
+    - Add a mandatory comment: `// TODO: [REVISAR APÓS MIGRAÇÃO] Motivo: [DESCREVER_O_PROBLEMA]`.
+    - Link to a BLOCKER in the `PLAN.md`.
+3. **Evidence**: All test failures must be recorded in the state before any action is taken.
+4. **Test Logic Invariant**: The agent is PROHIBITED from modifying assertions or test scenarios to "force" a test to pass. Any such attempt is a violation of the migration contract.
+
+### XML Schema Consistency Guardrail
+When updating namespaces in XML files (`web.xml`, `persistence.xml`, `beans.xml`, `ejb-jar.xml`), the agent MUST also update the `version` attribute and the `xsi:schemaLocation` URL to the matching Jakarta EE version (e.g., Servlet 4.0/5.0/6.0, Persistence 3.0/3.1). A namespace update without a matching schema version update is an incomplete migration and MUST be avoided.
+
+### Dependency Clean-room Policy
+The agent MUST ensure the `pom.xml` is free of residual `javax.*` dependencies that conflict with the new `jakarta.*` stack.
+1. **Removal**: Explicitly remove legacy artifacts that are no longer needed or have been superseded.
+2. **Exclusion**: If a transitive dependency pulls in legacy `javax` classes, use `<exclusions>` to prevent classpath pollution.
+3. **Verification**: After automation, perform a visual scan of the dependency tree to ensure a clean Jakarta-only baseline.
+
+### High-Signal Decision Logging
+Any non-trivial change (e.g., API adaptation, dependency removal, disabling a test, or an architectural tradeoff) MUST be recorded in the `Decisions` section of the repository `PLAN.md`.
+- Format: `[DATE] [MODULE] Decision: [X] Rationale: [Y]`.
+- This ensures a clear audit trail and explains the "why" behind the agent's actions for human reviewers.
+
 ## Standard workflow
 
 ### 1. Assess
@@ -196,7 +236,10 @@ Exit criteria:
 Use only after deterministic automation has run.
 
 Required actions:
-
+- **Evidence-first diagnostics**: Run `mvn compile` or relevant build tools to identify residual issues.
+- **Audit Disabled Tests**: Inspect all files for `@Disabled` or `@Ignore` annotations added during the migration. Attempt to re-enable and fix them once the broader system is stable.
+- **Apply API Adaptation Policy**: Resolve type incompatibilities ONLY if triggered by documented compiler errors, following the *API Adaptation Policy*.
+- **Conflict Escalation**: If a fix requires violating the *Business Logic Invariant*, record it in `PLAN.md` and stop execution for human review.
 - inspect only the failing modules and residual issues
 - make the smallest coherent fix set
 - rerun the relevant validation
@@ -342,7 +385,7 @@ This skill must operate as if context were a scarce runtime budget.
 
 ## Multi-agent policy
 
-- This skill may use multiple Codex sub-agents even though it is a single
+- This skill may use multiple AI sub-agents even though it is a single
   installable skill.
 - Parallelize only across independent scopes, evidence gathering, or validation
   tasks.
