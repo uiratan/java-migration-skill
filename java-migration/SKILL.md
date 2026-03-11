@@ -140,10 +140,46 @@ The agent MUST ensure the `pom.xml` is free of residual `javax.*` dependencies t
 2. **Exclusion**: If a transitive dependency pulls in legacy `javax` classes, use `<exclusions>` to prevent classpath pollution.
 3. **Verification**: After automation, perform a visual scan of the dependency tree to ensure a clean Jakarta-only baseline.
 
-### High-Signal Decision Logging
+### Decision Logging (Audit Trail)
 Any non-trivial change (e.g., API adaptation, dependency removal, disabling a test, or an architectural tradeoff) MUST be recorded in the `Decisions` section of the repository `PLAN.md`.
 - Format: `[DATE] [MODULE] Decision: [X] Rationale: [Y]`.
 - This ensures a clear audit trail and explains the "why" behind the agent's actions for human reviewers.
+
+### Java Version Alignment Guardrail
+The agent MUST verify the project's Java version against the target Jakarta EE version using the `java-migration/references/java/jakarta-compatibility-matrix.md`.
+1. **Verification**: Check Maven's `<maven.compiler.source>`, `<maven.compiler.target>`, and `<maven.compiler.release>` properties.
+2. **Action**: If a version mismatch is detected (e.g., Jakarta EE 10 on Java 8), the agent SHOULD propose an upgrade to the required Java version in the `PLAN.md` before finalizing the migration.
+
+### Literal String Deep Scan (JNDI/Reflection/Properties)
+Namespace replacement often misses strings in JNDI lookups, reflection calls, or property keys.
+1. **Scope**: Scan for literal strings containing `javax.servlet`, `javax.persistence`, `javax.ejb`, `javax.inject`, `javax.enterprise`, `javax.resource`, `javax.mail`, `javax.jms`, `javax.xml.ws`, `javax.xml.bind`.
+2. **Context**: Check `InitialContext.lookup()`, `Class.forName()`, `ClassLoader.loadClass()`, and `.properties` files.
+3. **Action**: Replace legacy namespaces in strings ONLY if they are intended to refer to Jakarta EE components. Record these changes in the decision log.
+
+### Multi-module Dependency Strategy (Bottom-Up)
+In multi-module Maven projects, the order of migration is critical to avoid cyclic compilation errors.
+1. **Rule**: The agent MUST migrate modules from the bottom of the dependency graph upwards.
+2. **Mapping**: Before planning waves, the agent SHOULD run `mvn dependency:tree` or inspect `pom.xml` files to identify leaf modules (those with no internal project dependencies).
+3. **Sequence**: Migrate leaf modules first, followed by modules that depend on them.
+
+### Atomic Rollback Protocol
+To maintain repository integrity, every execution wave must be treated as an atomic operation.
+1. **Pre-condition**: Ensure a clean `git status` before starting a wave.
+2. **Failure Handling**: If a wave results in unresolved compilation errors or validation failures even after stabilization attempts, the agent MUST:
+   - Perform a `git reset --hard` to return the repository to the pre-wave state.
+   - Record the specific failure and root cause in the `PLAN.md`.
+   - Mark the wave/scope as `blocked` in the state files.
+3. **Goal**: Never leave the repository in a broken state between sessions.
+
+### Incompatible Libraries Guardrail
+During discovery, the agent MUST screen dependencies against `java-migration/references/compatibility/known-incompatible-libraries.md`.
+1. **Detection**: Identify artifacts known to have hardcoded `javax` logic that cannot be fixed by bytecode transformation.
+2. **Escalation**: Flag these as **Structural Blockers** in the `PLAN.md` and propose version upgrades as the primary solution.
+
+### Public API & Binary Compatibility Check
+The migration MUST NOT accidentally break the project's public contract with external clients.
+1. **Rule**: Changes to public/protected method signatures or class hierarchies are only allowed for Jakarta EE compliance (refer to *API Adaptation Policy*).
+2. **Verification**: After stabilization, the agent SHOULD perform a manual check of the public API surface. If a breaking change is detected that is not required by Jakarta, it must be reverted or justified in the decision log.
 
 ## Migration Tooling Orchestration
 
@@ -173,19 +209,25 @@ Use for strategy and feasibility without code changes. Diagnose if the repo fits
 Initialize `docs/java-migration/` and official state files. Create the initial `PLAN.md`.
 
 ### 3. Discover
-Gather baseline evidence. **Progressive Disclosure Rule**: Load ONLY the manifests and XML descriptors for the specific module/scope under analysis. Do not load the entire repository's discovery evidence at once.
+Gather baseline evidence. 
+- **Incompatible Library Screening**: Screen dependencies against the `known-incompatible-libraries.md` reference.
+- **Progressive Disclosure Rule**: Load ONLY the manifests and XML descriptors for the specific module/scope under analysis. Do not load the entire repository's discovery evidence at once.
 
 ### 4. Plan waves
-Sequence scopes into small, reviewable waves. Promote `openrewrite_ready` scopes to execution.
+Sequence scopes into small, reviewable waves.
+- **Dependency Mapping**: Map the project's dependency graph to ensure a **Bottom-Up** sequence.
+- **Wave Promotion**: Group leaf modules first. Promote `openrewrite_ready` scopes to execution.
 
 ### 5. Execute (Orchestrated Automation)
 Apply the **Migration Tooling Orchestration** (Transformer -> OpenRewrite -> Plugin).
+- **Atomicity**: Ensure a clean git state before execution. If the wave fails, apply the **Atomic Rollback Protocol**.
 - **Validation**: Verify each step before moving to the next.
 - **State**: Register outcomes in `active-milestone.json` and `project.state.json`.
 
 ### 6. Last-mile stabilization
 Resolve residual issues after automation.
 - **Evidence-first**: Run `mvn compile` and capture errors.
+- **Literal String Verification**: Perform a targeted scan for `javax.*` leakage in JNDI lookups, Reflection calls, and properties files (refer to *Literal String Deep Scan*).
 - **API Adaptation**: Fix signature mismatches triggered by evidence, following the *API Adaptation Policy*.
 - **Audit**: Review and attempt to re-enable `@Disabled` tests with `// TODO: [REVISAR APÓS MIGRAÇÃO]`.
 
@@ -254,8 +296,9 @@ Fallbacks are exceptions, not a parallel happy path.
 
 Each target repository must keep `docs/java-migration/PLAN.md` current.
 
-It should stay compact and operational. Prefer one short bullet per line. The
-recommended structure is:
+It should stay compact and operational. **Markdown Guardrail: Every item MUST be a separate bullet point starting with `- ` or `1. ` and followed by a newline. DO NOT concatenate multiple items into a single paragraph.**
+
+The recommended structure is:
 
 1. Objective
    Repository-specific migration goal and supported target stack.
