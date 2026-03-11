@@ -145,6 +145,25 @@ Any non-trivial change (e.g., API adaptation, dependency removal, disabling a te
 - Format: `[DATE] [MODULE] Decision: [X] Rationale: [Y]`.
 - This ensures a clear audit trail and explains the "why" behind the agent's actions for human reviewers.
 
+## Migration Tooling Orchestration
+
+To achieve a professional-grade migration, the agent MUST follow this specific tool hierarchy:
+
+1. **Phase 1: Foundation (Eclipse Transformer CLI First)**
+   - **Role**: Authoritative baseline for total namespace replacement (javax -> jakarta) across all file types (Java, XML, Properties, SPI).
+   - **Reasoning**: As the official tool from the Eclipse Foundation, it ensures a coherent and complete baseline for the entire project in a single pass.
+   - **Output**: A project-wide Jakarta namespace baseline, including resources and metadata.
+
+2. **Phase 2: API Refinement (OpenRewrite Second)**
+   - **Role**: Specialist for complex library-specific transformations (e.g., Hibernate 6, Spring 6, Persistence 3.0 logic).
+   - **Reasoning**: Once the namespaces are leveled, OpenRewrite focuses on adapting method signatures, return types, and logic changes that simple string replacement misses.
+   - **Output**: Clean, human-readable source code adapted to the breaking changes of modern Jakarta-compatible libraries.
+
+3. **Phase 3: Binary Safety (Eclipse Transformer Maven Plugin Final)**
+   - **Role**: Final guard for third-party binary dependencies (JARs) and final artifact compatibility.
+   - **Reasoning**: Ensures that the final `.war` or `.jar` is compatible with a Jakarta runtime even if it includes legacy third-party libraries that cannot be migrated at the source level.
+   - **Output**: A deployment-ready artifact with 100% Jakarta-compatible bytecode.
+
 ## Standard workflow
 
 ### 1. Assess
@@ -259,7 +278,9 @@ This is an official workflow phase. Treat transformer exception handling as one
 kind of controlled fallback, not as a separate competing phase.
 
 Required actions:
-
+- **Eclipse Transformer Binary Migration**: Use the `transformer-maven-plugin` ONLY when the agent identifies legacy binary dependencies (JARs) that have no Jakarta-compatible version.
+- **Implementation**: Add the plugin configuration to the `pom.xml` (refer to `java-migration/references/maven/eclipse-transformer.xml`).
+- **Goal**: Ensure the final artifact has its bytecode and resource namespaces updated, even for third-party libraries that the agent cannot modify at source level.
 - record why the normal path is not viable
 - apply the fallback only to the minimal necessary artifact set
 - persist the fallback through the state controller with explicit exception state

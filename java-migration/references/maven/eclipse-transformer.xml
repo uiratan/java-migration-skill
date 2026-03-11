@@ -1,0 +1,24 @@
+<!-- Eclipse Transformer Maven Plugin Configuration Reference -->
+<!-- Use this snippet when a project has legacy binary dependencies (JARs) that cannot be updated to Jakarta EE versions -->
+<plugin>
+    <groupId>org.eclipse.transformer</groupId>
+    <artifactId>transformer-maven-plugin</artifactId>
+    <version>0.5.0</version>
+    <extensions>true</extensions>
+    <configuration>
+        <rules>
+            <jakartaDefaults>true</jakartaDefaults>
+        </rules>
+        <!-- Removes signatures from signed JARs which would be invalidated by bytecode changes -->
+        <stripSignatures>true</stripSignatures>
+    </configuration>
+    <executions>
+        <execution>
+            <id>default-jar</id>
+            <goals>
+                <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+        </execution>
+    </executions>
+</plugin>
