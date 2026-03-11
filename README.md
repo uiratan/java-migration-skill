@@ -2,6 +2,8 @@
 
 Repositório-fonte único do kit reutilizável de migração orientada a IA.
 
+![alt text](image.png)
+
 ## Skill final
 
 - `java-migration/`
