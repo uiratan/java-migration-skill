@@ -143,6 +143,7 @@ Required actions:
 
 - read only the active state, target `PLAN.md` when needed, and relevant manifests
 - gather evidence for one scope or a small independent batch
+- **explicitly search for XML descriptors** (`beans.xml`, `persistence.xml`, `ejb-jar.xml`, `orm.xml`, `batch-jobs/*.xml`) that may contain legacy namespaces (`http://xmlns.jcp.org/xml/ns/javaee`)
 - normalize discovery output with bundled scripts
 - refresh next-scope state
 - record discoveries and decisions in the target `PLAN.md`
@@ -180,6 +181,7 @@ Required actions:
 - confirm the selected scopes and target stack
 - choose the smallest safe recipe set
 - run bundled automation helpers
+- **manually verify or apply namespace updates** to XML descriptors if automation skips them (e.g., updating `beans.xml` to `4.0` and `persistence.xml` to `3.0` namespaces)
 - validate the affected scopes
 - register results in state
 - summarize outcomes and residual issues in the target `PLAN.md` in delta form
