@@ -147,145 +147,50 @@ Any non-trivial change (e.g., API adaptation, dependency removal, disabling a te
 
 ## Migration Tooling Orchestration
 
-To achieve a professional-grade migration, the agent MUST follow this specific tool hierarchy:
+To achieve a professional-grade migration, the agent MUST follow this specific hierarchy during the **Execute** phase:
 
-1. **Phase 1: Foundation (Eclipse Transformer CLI First)**
-   - **Role**: Authoritative baseline for total namespace replacement (javax -> jakarta) across all file types (Java, XML, Properties, SPI).
-   - **Implementation**: Refer to `java-migration/references/transformer/cli-usage.md`.
-   - **Reasoning**: As the official tool from the Eclipse Foundation, it ensures a coherent and complete baseline for the entire project in a single pass.
-   - **Output**: A project-wide Jakarta namespace baseline, including resources and metadata.
+- **Step 1: Foundation (Eclipse Transformer CLI)**
+  - **Role**: Authoritative baseline for total namespace replacement (javax -> jakarta) across all file types (Java, XML, Properties, SPI).
+  - **Implementation**: Refer to `java-migration/references/transformer/cli-usage.md`.
+  - **Output**: A project-wide Jakarta namespace baseline.
 
-2. **Phase 2: API Refinement (OpenRewrite Second)**
-   - **Role**: Specialist for complex library-specific transformations (e.g., Hibernate 6, Spring 6, Persistence 3.0 logic).
-   - **Dynamic Discovery**: The agent SHOULD NOT rely on static recipe lists. Use `mvn rewrite:discover` to find the most appropriate and up-to-date recipes for the project's detected stack.
-   - **Reasoning**: Once the namespaces are leveled, OpenRewrite focuses on adapting method signatures, return types, and logic changes that simple string replacement misses.
-   - **Output**: Clean, human-readable source code adapted to the breaking changes of modern Jakarta-compatible libraries.
+- **Step 2: API Refinement (OpenRewrite)**
+  - **Role**: Specialist for complex library-specific transformations (e.g., Hibernate 6, Spring 6).
+  - **Dynamic Discovery**: Use `mvn rewrite:discover` to find the most up-to-date recipes for the project's stack.
+  - **Output**: Human-readable source code adapted to modern Jakarta breaking changes.
 
-3. **Phase 3: Binary Safety (Eclipse Transformer Maven Plugin Final)**
-   - **Role**: Final guard for third-party binary dependencies (JARs) and final artifact compatibility.
-   - **Implementation**: Refer to `java-migration/references/maven/eclipse-transformer.xml`.
-   - **Reasoning**: Ensures that the final `.war` or `.jar` is compatible with a Jakarta runtime even if it includes legacy third-party libraries that cannot be migrated at the source level.
-   - **Output**: A deployment-ready artifact with 100% Jakarta-compatible bytecode.
+- **Step 3: Binary Safety (Eclipse Transformer Maven Plugin)**
+  - **Role**: Final guard for third-party binary dependencies and final artifact compatibility.
+  - **Implementation**: Refer to `java-migration/references/maven/eclipse-transformer.xml`.
+  - **Output**: A 100% Jakarta-compatible deployment artifact.
 
 ## Standard workflow
 
 ### 1. Assess
-
-Use when the user wants strategy, feasibility, diagnosis, or simplification
-without starting repository changes.
-
-Deliverables:
-
-- recommendation grounded in the current repository
-- explicit statement of whether the repository fits the supported envelope
-- no mutation unless the user asks to start or resume the operational flow
+Use for strategy and feasibility without code changes. Diagnose if the repo fits the `Maven-first` envelope.
 
 ### 2. Bootstrap
-
-Use when `docs/java-migration/` is missing or only partially initialized.
-
-Required actions:
-
-- inspect repository root just enough to classify build system and module shape
-- run `bash java-migration/scripts/bootstrap/migration-kit.sh start <repo-root>`
-- confirm the output contract was created
-- seed `docs/java-migration/PLAN.md` and state files
-
-Exit criteria:
-
-- repository-level `PLAN.md` exists
-- state files exist
-- initial ADRs and discovery manifest exist
+Initialize `docs/java-migration/` and official state files. Create the initial `PLAN.md`.
 
 ### 3. Discover
-
-Use when baseline evidence is missing or incomplete.
-
-Required actions:
-
-- read only the active state, target `PLAN.md` when needed, and relevant manifests
-- gather evidence for one scope or a small independent batch
-- **explicitly search for XML descriptors** (`beans.xml`, `persistence.xml`, `ejb-jar.xml`, `orm.xml`, `batch-jobs/*.xml`) that may contain legacy namespaces (`http://xmlns.jcp.org/xml/ns/javaee`)
-- normalize discovery output with bundled scripts
-- refresh next-scope state
-- record discoveries and decisions in the target `PLAN.md`
-
-Exit criteria:
-
-- prioritized scopes are visible
-- blockers and dependency-first constraints are explicit
-- candidate scopes can be promoted into waves
+Gather baseline evidence. **Progressive Disclosure Rule**: Load ONLY the manifests and XML descriptors for the specific module/scope under analysis. Do not load the entire repository's discovery evidence at once.
 
 ### 4. Plan waves
+Sequence scopes into small, reviewable waves. Promote `openrewrite_ready` scopes to execution.
 
-Use when discovery is mature enough to promote executable work.
-
-Required actions:
-
-- group scopes into small rollback-friendly waves
-- promote only `openrewrite_ready` scopes into deterministic automation
-- persist the promoted wave through the planner script
-- update the target `PLAN.md` only with the new wave decision, rationale, risks,
-  and success criteria
-
-Exit criteria:
-
-- a concrete next wave is selected
-- selected scopes are visible in machine-readable state
-- validation expectations are explicit
-
-### 5. Execute deterministic automation
-
-Use for OpenRewrite-centered transformations.
-
-Required actions:
-
-- confirm the selected scopes and target stack
-- choose the smallest safe recipe set
-- run bundled automation helpers
-- **manually verify or apply namespace updates** to XML descriptors if automation skips them (e.g., updating `beans.xml` to `4.0` and `persistence.xml` to `3.0` namespaces)
-- validate the affected scopes
-- register results in state
-- summarize outcomes and residual issues in the target `PLAN.md` in delta form
-
-Exit criteria:
-
-- the wave result is persisted
-- the next action is either another automation wave or last-mile stabilization
+### 5. Execute (Orchestrated Automation)
+Apply the **Migration Tooling Orchestration** (Transformer -> OpenRewrite -> Plugin).
+- **Validation**: Verify each step before moving to the next.
+- **State**: Register outcomes in `active-milestone.json` and `project.state.json`.
 
 ### 6. Last-mile stabilization
-
-Use only after deterministic automation has run.
-
-Required actions:
-- **Evidence-first diagnostics**: Run `mvn compile` or relevant build tools to identify residual issues.
-- **Audit Disabled Tests**: Inspect all files for `@Disabled` or `@Ignore` annotations added during the migration. Attempt to re-enable and fix them once the broader system is stable.
-- **Apply API Adaptation Policy**: Resolve type incompatibilities ONLY if triggered by documented compiler errors, following the *API Adaptation Policy*.
-- **Conflict Escalation**: If a fix requires violating the *Business Logic Invariant*, record it in `PLAN.md` and stop execution for human review.
-- inspect only the failing modules and residual issues
-- make the smallest coherent fix set
-- rerun the relevant validation
-- register the result in state
-- capture only the remaining risks or blockers in the target `PLAN.md`
-
-Exit criteria:
-
-- the residual issue is resolved and verified
-- or the blocker is explicitly recorded with a next action
+Resolve residual issues after automation.
+- **Evidence-first**: Run `mvn compile` and capture errors.
+- **API Adaptation**: Fix signature mismatches triggered by evidence, following the *API Adaptation Policy*.
+- **Audit**: Review and attempt to re-enable `@Disabled` tests with `// TODO: [REVISAR APÓS MIGRAÇÃO]`.
 
 ### 7. Controlled fallback
-
-Use only when the normal upgrade path is explicitly blocked.
-
-This is an official workflow phase. Treat transformer exception handling as one
-kind of controlled fallback, not as a separate competing phase.
-
-Required actions:
-- **Eclipse Transformer Binary Migration**: Use the `transformer-maven-plugin` ONLY when the agent identifies legacy binary dependencies (JARs) that have no Jakarta-compatible version.
-- **Implementation**: Add the plugin configuration to the `pom.xml` (refer to `java-migration/references/maven/eclipse-transformer.xml`).
-- **Goal**: Ensure the final artifact has its bytecode and resource namespaces updated, even for third-party libraries that the agent cannot modify at source level.
-- record why the normal path is not viable
-- apply the fallback only to the minimal necessary artifact set
+Handle explicit blockers where the normal path fails. Record the exception state and future removal conditions.
 - persist the fallback through the state controller with explicit exception state
 - persist an exit condition
 - reflect the exception in the target `PLAN.md` and machine-readable state
