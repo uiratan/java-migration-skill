@@ -151,16 +151,19 @@ To achieve a professional-grade migration, the agent MUST follow this specific t
 
 1. **Phase 1: Foundation (Eclipse Transformer CLI First)**
    - **Role**: Authoritative baseline for total namespace replacement (javax -> jakarta) across all file types (Java, XML, Properties, SPI).
+   - **Implementation**: Refer to `java-migration/references/transformer/cli-usage.md`.
    - **Reasoning**: As the official tool from the Eclipse Foundation, it ensures a coherent and complete baseline for the entire project in a single pass.
    - **Output**: A project-wide Jakarta namespace baseline, including resources and metadata.
 
 2. **Phase 2: API Refinement (OpenRewrite Second)**
    - **Role**: Specialist for complex library-specific transformations (e.g., Hibernate 6, Spring 6, Persistence 3.0 logic).
+   - **Dynamic Discovery**: The agent SHOULD NOT rely on static recipe lists. Use `mvn rewrite:discover` to find the most appropriate and up-to-date recipes for the project's detected stack.
    - **Reasoning**: Once the namespaces are leveled, OpenRewrite focuses on adapting method signatures, return types, and logic changes that simple string replacement misses.
    - **Output**: Clean, human-readable source code adapted to the breaking changes of modern Jakarta-compatible libraries.
 
 3. **Phase 3: Binary Safety (Eclipse Transformer Maven Plugin Final)**
    - **Role**: Final guard for third-party binary dependencies (JARs) and final artifact compatibility.
+   - **Implementation**: Refer to `java-migration/references/maven/eclipse-transformer.xml`.
    - **Reasoning**: Ensures that the final `.war` or `.jar` is compatible with a Jakarta runtime even if it includes legacy third-party libraries that cannot be migrated at the source level.
    - **Output**: A deployment-ready artifact with 100% Jakarta-compatible bytecode.
 
